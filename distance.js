@@ -1,11 +1,10 @@
 const dotenv = require('dotenv').config()
-const http = require('http')
 const request = require('request')
 const express = require('express')
 const jwt = require('jwt-simple')
 const dayjs = require('dayjs')
-let app = express()
-const { Match,Picture,Distance } = require('./middleware/sequelize')
+const { Match,Distance,Sequelize } = require('./middleware/sequelize')
+const Op = Sequelize.Op
 
 let xAuthToken = dotenv.parsed.X_AUTH_TOKEN
 let apiBaseUrl = dotenv.parsed.API_BASE_URL
@@ -16,7 +15,8 @@ let url = apiBaseUrl +"/user/"
 
     Match.findAll({
     where: {
-        distance_verified_city: null,
+        id: { [Op.notIn]: Sequelize.literal("( SELECT match_id FROM `distances` WHERE `origin_code` = '"+ airportCode +"' )" ) },
+        distance_verified_city: null
     },
     raw : true,
     limit: 20

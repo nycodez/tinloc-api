@@ -15,7 +15,6 @@ module.exports = (Sequelize, type) => {
         },
         origin_code: {
             type: type.STRING(3),
-            allowNull: true
         },
         distance_km: {
             type: type.STRING(255),

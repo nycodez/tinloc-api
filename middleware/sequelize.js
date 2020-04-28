@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
         dialectOptions: {
             timezone: dotenv.parsed.MYSQL_TIMEZONE
         },
-        logging: true,
+        // logging: false,
         pool: {
             max: 10,
             min: 0,
@@ -31,5 +31,6 @@ const Distance = DistanceModel(sequelize, Sequelize)
 module.exports = {
     Match,
     Picture,
-    Distance
+    Distance,
+    Sequelize
 }
