@@ -77,8 +77,8 @@ module.exports = (Sequelize, type) => {
         person_name: {
             type: type.STRING(50),
         },
-        person_distance_mi: {
-            type: type.INTEGER(5),
+        distance_verified_city: {
+            type: type.STRING(50),
             allowNull: true
         },
     }, {

@@ -3,17 +3,20 @@ const http = require('http')
 const request = require('request')
 const express = require('express')
 const jwt = require('jwt-simple')
+const dayjs = require('dayjs')
 let app = express()
-const { Match,Picture } = require('./sequelize')
+const { Match,Picture,Distance } = require('./middleware/sequelize')
 
 let xAuthToken = dotenv.parsed.X_AUTH_TOKEN
 let apiBaseUrl = dotenv.parsed.API_BASE_URL
+let airportCode = dotenv.parsed.AIRPORT_CODE
+let fuzzyKm = dotenv.parsed.FUZZY_DISTANCE_KM
+let fuzzyMi = dotenv.parsed.FUZZY_DISTANCE_MI
 let url = apiBaseUrl +"/user/"
 
-
-Match.findAll({
+    Match.findAll({
     where: {
-        person_distance_mi: null,
+        distance_verified_city: null,
     },
     raw : true,
     limit: 20
@@ -33,21 +36,43 @@ Match.findAll({
             await request(options,  function (error, response) {
                 if (error) throw new Error(error);
                 let parsed = JSON.parse(response.body)
-                let distance = 0
-
-                if(parsed.results.distance_mi > 0)
-                    distance = parsed.results.distance_mi
-                else
-                    distance = 0
 
                 let newDistance = {
-                    person_distance_mi: distance
+                    match_id: match.id,
+                    person_id: match.person_id,
+                    created_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+                    origin_code: airportCode,
                 }
-                 Match.update(newDistance, {
+
+                let wherePerson = {
                     where: {
-                        person_id: person_id,
+                        person_id: match.person_id
                     }
-                })
+                }
+                let newCity = {
+                    distance_verified_city: airportCode
+                }
+
+                if(parsed.results.distance_mi > 0) {
+                    newDistance.distance_mi = parsed.results.distance_mi
+                    if(parsed.results.distance_mi <= fuzzyMi) {
+                        Match.update(newCity, wherePerson)
+                    }
+                }
+                else if(parsed.results.distance_km > 0) {
+                    newDistance.distance_km = parsed.results.distance_km
+                    if(parsed.results.distance_km <= fuzzyKm) {
+                        Match.update(newCity, wherePerson)
+                    }
+                }
+
+                Distance.create(newDistance)
+                // .then( userResponse2 => {
+                //     console.log( userResponse2 )
+                // })
+                // .catch( error2 => {
+                //     console.log( error2.code )
+                // })
             })
 
             // await new Promise(resolve => setTimeout(resolve, 3000));

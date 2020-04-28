@@ -4,12 +4,12 @@ const request = require('request')
 const express = require('express')
 const jwt = require('jwt-simple')
 let app = express()
-const { Match,Picture } = require('./sequelize')
+const { Match,Picture,Distance } = require('./middleware/sequelize')
 
 let count = 100
 let xAuthToken = dotenv.parsed.X_AUTH_TOKEN
 let apiBaseUrl = dotenv.parsed.API_BASE_URL
-let url = apiBaseUrl +"/v2/matches?count="+ count +"&is_tinder_u=false&locale=en&message=0"
+let url = apiBaseUrl +"/v2/matches?count="+ count +"&is_tinder_u=false&locale=en&message=1"
 
 let page_token = ""
 

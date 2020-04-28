@@ -1,7 +1,8 @@
 const dotenv = require('dotenv').config()
 const Sequelize = require('sequelize')
-const MatchModel = require('./models/Match')
-const PictureModel = require('./models/Picture')
+const MatchModel = require('../models/Match')
+const PictureModel = require('../models/Picture')
+const DistanceModel = require('../models/Distance')
 
 const sequelize = new Sequelize(
     dotenv.parsed.MYSQL_NAME,
@@ -25,8 +26,10 @@ const sequelize = new Sequelize(
 
 const Match = MatchModel(sequelize, Sequelize)
 const Picture = PictureModel(sequelize, Sequelize)
+const Distance = DistanceModel(sequelize, Sequelize)
 
 module.exports = {
     Match,
-    Picture
+    Picture,
+    Distance
 }
