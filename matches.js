@@ -4,9 +4,9 @@ const dayjs = require('dayjs')
 const { Match,Picture } = require('./middleware/sequelize')
 const argv = require('minimist')(process.argv.slice(2));
 
-let messageCount = 1
+let messagedAlready = 1
 if(argv.hasOwnProperty('m')){
-    messageCount = argv.m
+    messagedAlready = argv.m
 }
 
 let matchCount = 75
@@ -16,7 +16,7 @@ if(argv.hasOwnProperty('n')){
 
 let xAuthToken = dotenv.parsed.X_AUTH_TOKEN
 let apiBaseUrl = dotenv.parsed.API_BASE_URL
-let url = apiBaseUrl +"/v2/matches?count="+ matchCount +"&message="+ messageCount
+let url = apiBaseUrl +"/v2/matches?count="+ matchCount +"&message="+ messagedAlready
 
 if(argv.hasOwnProperty('t')){
     url = url + "&page_token="+ argv.t
@@ -35,7 +35,7 @@ request(options, (error, response) => {
     let parsed = JSON.parse(response.body)
     let matches = parsed.data.matches
 
-    Object.keys(matches).forEach(async (key) => {
+    Object.keys(matches).forEach(function(key) {
         let match = matches[key]
 
         let newMatch = {
@@ -46,7 +46,7 @@ request(options, (error, response) => {
             created_date: dayjs(match.created_date).format('YYYY-MM-DD HH:mm:ss'),
             dead: match.dead,
             last_activity_date: dayjs(match.last_activity_date).format('YYYY-MM-DD HH:mm:ss'),
-            message_count: messageCount,
+            message_count: messagedAlready,
             muted: match.muted,
             pending: match.pending,
             is_super_like: match.is_super_like,
@@ -65,7 +65,7 @@ request(options, (error, response) => {
             last_updated_date: dayjs().format('YYYY-MM-DD HH:mm:ss')
         }
 
-        let test = await Match.create(newMatch)
+        Match.upsert(newMatch)
             // .then( userResponse2 => {
             //     console.log( userResponse2 )
             // })
@@ -91,7 +91,6 @@ request(options, (error, response) => {
     if(parsed.data.hasOwnProperty('next_page_token')){
         console.log("next page token: " + parsed.data.next_page_token)
     }
-    process.exit()
 })
 
 

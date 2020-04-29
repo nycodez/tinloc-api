@@ -11,7 +11,7 @@ let fuzzyKm = dotenv.parsed.FUZZY_DISTANCE_KM
 let fuzzyMi = dotenv.parsed.FUZZY_DISTANCE_MI
 let url = apiBaseUrl +"/user/"
 
-    Match.findAll({
+Match.findAll({
     where: {
         id: { [Op.notIn]: Sequelize.literal("( SELECT match_id FROM `distances` WHERE `origin_code` = '"+ airportCode +"' )" ) },
         distance_verified_city: null
@@ -20,6 +20,8 @@ let url = apiBaseUrl +"/user/"
     limit: 20
     })
     .then( data => {
+        console.log(Object.keys(data).length +" rows to search")
+
         Object.keys(data).forEach(async function(key) {
             let match = data[key]
             let person_id = match.person_id
@@ -31,7 +33,7 @@ let url = apiBaseUrl +"/user/"
                 }
             }
 
-            await request(options,  (error, response) => {
+            await request(options,  function(error, response) {
                 if (error) throw new Error(error);
                 let parsed = JSON.parse(response.body)
 
@@ -53,24 +55,12 @@ let url = apiBaseUrl +"/user/"
                 }
 
                 if(parsed.results.distance_mi > 0) {
-                    console.log('go mi')
                     newDistance.distance_mi = parsed.results.distance_mi
-                    console.log(parsed.results.distance_mi +"\r\n")
-                    console.log(fuzzyMi +"\r\n")
                     if(parsed.results.distance_mi <= fuzzyMi) {
-                        console.log('go mi')
-
                         Match.update(newCity, wherePerson)
-                        .then( userResponse2 => {
-                            console.log( userResponse2 )
-                        })
-                        .catch( error2 => {
-                            console.log( error2.code )
-                        })
                     }
                 }
                 else if(parsed.results.distance_km > 0) {
-                    console.log('go km')
                     newDistance.distance_km = parsed.results.distance_km
                     if(parsed.results.distance_km <= fuzzyKm) {
                         Match.update(newCity, wherePerson)
@@ -78,18 +68,8 @@ let url = apiBaseUrl +"/user/"
                 }
 
                 Distance.create(newDistance)
-                // .then( userResponse2 => {
-                //     console.log( userResponse2 )
-                // })
-                // .catch( error2 => {
-                //     console.log( error2.code )
-                // })
             })
-
-            // await new Promise(resolve => setTimeout(resolve, 3000));
         })
-
-        // process.exit()
     })
     .catch( error => {
         console.log( error )

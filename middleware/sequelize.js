@@ -3,6 +3,7 @@ const Sequelize = require('sequelize')
 const MatchModel = require('../models/Match')
 const PictureModel = require('../models/Picture')
 const DistanceModel = require('../models/Distance')
+const MessageModel = require('../models/Message')
 
 const sequelize = new Sequelize(
     dotenv.parsed.MYSQL_NAME,
@@ -14,7 +15,7 @@ const sequelize = new Sequelize(
         dialectOptions: {
             timezone: dotenv.parsed.MYSQL_TIMEZONE
         },
-        // logging: false,
+        logging: false,
         pool: {
             max: 10,
             min: 0,
@@ -27,10 +28,12 @@ const sequelize = new Sequelize(
 const Match = MatchModel(sequelize, Sequelize)
 const Picture = PictureModel(sequelize, Sequelize)
 const Distance = DistanceModel(sequelize, Sequelize)
+const Message = MessageModel(sequelize, Sequelize)
 
 module.exports = {
     Match,
     Picture,
     Distance,
+    Message,
     Sequelize
 }

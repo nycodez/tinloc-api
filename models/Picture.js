@@ -6,7 +6,6 @@ module.exports = (Sequelize, type) => {
         },
         person_id: {
             type: type.STRING(60),
-            primaryKey: true,
         },
         name: {
             type: type.STRING(255),
@@ -16,6 +15,7 @@ module.exports = (Sequelize, type) => {
         },
         last_update_time: {
             type: type.DATE,
+            allowNull: true,
         },
     }, {
         type,
