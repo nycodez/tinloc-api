@@ -1,20 +1,20 @@
 const dotenv = require('dotenv').config()
-const http = require('http')
 const request = require('request')
-const express = require('express')
-const jwt = require('jwt-simple')
-let app = express()
+const dayjs = require('dayjs')
 const { Match,Picture,Distance,Sequelize } = require('./middleware/sequelize')
+var argv = require('minimist')(process.argv.slice(2));
 
-let count = 50
+let matchCount = 75
+if(argv.hasOwnProperty('n')){
+    matchCount = argv.n
+}
 let xAuthToken = dotenv.parsed.X_AUTH_TOKEN
 let apiBaseUrl = dotenv.parsed.API_BASE_URL
-let url = apiBaseUrl +"/v2/matches?count="+ count +"&is_tinder_u=false&locale=en&message=1"
+let url = apiBaseUrl +"/v2/matches?count="+ matchCount +"&message=0"
 
-let page_token = ""
-
-if(page_token.length > 0)
-    url = url + "&page_token="+ page_token
+if(argv.hasOwnProperty('t')){
+    url = url + "&page_token="+ argv.t
+}
 
 let options = {
     'method': 'GET',
@@ -28,6 +28,8 @@ request(options, function (error, response) {
     if (error) throw new Error(error);
     let parsed = JSON.parse(response.body)
     let matches = parsed.data.matches
+    console.log('matches count', Object.keys(matches).length);
+    let thisMatch = 1;
     Object.keys(matches).forEach(function(key) {
         let match = matches[key]
         let newMatch = {
@@ -53,7 +55,8 @@ request(options, function (error, response) {
             person_name: match.person.name,
             following: match.following,
             following_moments: match.following_moments,
-            has_harassing_feedback: match.has_harassing_feedback
+            has_harassing_feedback: match.has_harassing_feedback,
+            last_updated_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         }
         Match.upsert(newMatch)
             // .then( userResponse => {
@@ -62,8 +65,11 @@ request(options, function (error, response) {
             // .catch( error => {
             //     console.log( error.code )
             // })
+            // .then(console.log(thisMatch +"\r\n"))
 
         let pics = match.person.photos
+        // console.log('this match pictures count', Object.keys(pics).length);
+        let thisPic = 1
         Object.keys(pics).forEach(function(key2) {
             let pic = pics[key2]
             let newPic = {
@@ -80,10 +86,17 @@ request(options, function (error, response) {
                 // .catch( error2 => {
                 //     console.log( error2.code )
                 // })
+                // .then(console.log(thisPic +"\r\n"))
 
+            thisPic = thisPic + 1
         })
+        thisMatch = thisMatch + 1
     })
-    return console.log("next page token: "+ parsed.data.next_page_token)
+
+    if(parsed.data.hasOwnProperty('next_page_token')){
+        console.log("next page token: " + parsed.data.next_page_token)
+    }
+    process.exit()
 })
 
 

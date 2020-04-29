@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
         dialectOptions: {
             timezone: dotenv.parsed.MYSQL_TIMEZONE
         },
-        // logging: false,
+        logging: false,
         pool: {
             max: 10,
             min: 0,

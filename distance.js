@@ -1,7 +1,5 @@
 const dotenv = require('dotenv').config()
 const request = require('request')
-const express = require('express')
-const jwt = require('jwt-simple')
 const dayjs = require('dayjs')
 const { Match,Distance,Sequelize } = require('./middleware/sequelize')
 const Op = Sequelize.Op
