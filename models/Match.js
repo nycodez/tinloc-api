@@ -83,6 +83,7 @@ module.exports = (Sequelize, type) => {
         },
         last_updated_date: {
             type: type.DATE(),
+            allowNull: true
         },
     }, {
         type,

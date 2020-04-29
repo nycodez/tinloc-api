@@ -31,7 +31,7 @@ let url = apiBaseUrl +"/user/"
                 }
             }
 
-            await request(options,  function (error, response) {
+            await request(options,  (error, response) => {
                 if (error) throw new Error(error);
                 let parsed = JSON.parse(response.body)
 
@@ -42,22 +42,35 @@ let url = apiBaseUrl +"/user/"
                     origin_code: airportCode,
                 }
 
+                let newCity = {
+                    distance_verified_city: airportCode,
+                    last_updated_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+                }
                 let wherePerson = {
                     where: {
                         person_id: match.person_id
                     }
                 }
-                let newCity = {
-                    distance_verified_city: airportCode
-                }
 
                 if(parsed.results.distance_mi > 0) {
+                    console.log('go mi')
                     newDistance.distance_mi = parsed.results.distance_mi
+                    console.log(parsed.results.distance_mi +"\r\n")
+                    console.log(fuzzyMi +"\r\n")
                     if(parsed.results.distance_mi <= fuzzyMi) {
+                        console.log('go mi')
+
                         Match.update(newCity, wherePerson)
+                        .then( userResponse2 => {
+                            console.log( userResponse2 )
+                        })
+                        .catch( error2 => {
+                            console.log( error2.code )
+                        })
                     }
                 }
                 else if(parsed.results.distance_km > 0) {
+                    console.log('go km')
                     newDistance.distance_km = parsed.results.distance_km
                     if(parsed.results.distance_km <= fuzzyKm) {
                         Match.update(newCity, wherePerson)
@@ -76,9 +89,8 @@ let url = apiBaseUrl +"/user/"
             // await new Promise(resolve => setTimeout(resolve, 3000));
         })
 
+        // process.exit()
     })
     .catch( error => {
-        // console.log( error )
+        console.log( error )
     })
-
-// process.exit()
